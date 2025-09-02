@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TMO - Field Inventory</title>
+<style>
+  body {
+    background-color: #d9f0f7;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+
+  form {
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+    background: #e9f7fc;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  form h2 {
+    margin-bottom: 20px;
+    color: #222;
+  }
+
+  .form-group {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+  }
+
+  .form-group label {
+    flex: 0 0 140px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group input[type="date"],
+  .form-group textarea,
+  .form-group input[type="file"] {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline-offset: 2px;
+    outline-color: #2196F3;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    height: 60px;
+  }
+
+  .form-group input[type="date"] {
+    max-width: 180px;
+  }
+
+  button {
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 10px 18px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: block;
+  }
+
+  button:hover {
+    background-color: #45a049;
+  }
+
+  /* Filter container */
+  #filterContainer {
+    max-width: 1200px;
+    margin: 0 auto 10px auto;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  #searchInput, #categoryFilter {
+    padding: 6px 10px;
+    font-size: 14px;
+    width: 250px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+
+  /* Table container */
+  .table-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #0077cc;
+    border-radius: 8px;
+    background: white;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 10px 8px;
+    border: 1px solid #ddd;
+    vertical-align: middle;
+    text-align: left;
+  }
+
+  th {
+    background-color: #3a9bdc;
+    color: white;
+    cursor: default;
+    user-select: none;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  .image-cell img {
+    width: 2in;
+    height: 2in;
+    object-fit: contain;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin: 4px 2px;
+  }
+
+  .action-buttons button {
+    margin: 0 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .action-buttons button.edit-btn {
+    background-color: #0077cc;
+    color: white;
+    border: none;
+    border-radius: 3px;
+  }
+
+  .action-buttons button.edit-btn:hover {
+    background-color: #005fa3;
+  }
+
+  .action-buttons button.delete-btn {
+    background-color: #cc3300;
+    color: white;
+    border: none;
+    border-radius: 3px;
+  }
+
+  .action-buttons button.delete-btn:hover {
+    background-color: #a02a00;
+  }
+
+  /* Control buttons container */
+  .controls {
+    max-width: 1200px;
+    margin: 10px auto 20px auto;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .controls button {
+    background-color: #0077cc;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .controls button:hover {
+    background-color: #005fa3;
+  }
+</style>
+</head>
+<body>
+
+<form id="equipmentForm">
+  <h2>TMO - Field Inventory</h2>
+
+  <div class="form-group">
+    <label for="equipmentNumber">Equipment Number:</label>
+    <input type="text" id="equipmentNumber" name="equipmentNumber" required />
+  </div>
+
+  <div class="form-group">
+    <label for="quantity">Quantity:</label>
+    <input type="number" id="quantity" name="quantity" value="1" min="1" required />
+  </div>
+
+  <div class="form-group">
+    <label for="unit">Unit:</label>
+    <input type="text" id="unit" name="unit" required />
+  </div>
+
+  <div class="form-group">
+    <label for="description">Description:</label>
+    <input type="text" id="description" name="description" required />
+  </div>
+
+  <div class="form-group">
+    <label for="category">Category:</label>
+    <input type="text" id="category" name="category" required />
+  </div>
+
+  <div class="form-group">
+    <label for="serialNumber">Serial Number:</label>
+    <input type="text" id="serialNumber" name="serialNumber" />
+  </div>
+
+  <div class="form-group">
+    <label for="mre">MRE:</label>
+    <input type="text" id="mre" name="mre" />
+  </div>
+
+  <div class="form-group">
+    <label for="dateOfRequisition">Date of Requisition:</label>
+    <input type="date" id="dateOfRequisition" name="dateOfRequisition" />
+  </div>
+
+  <div class="form-group">
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" />
+  </div>
+
+  <div class="form-group">
+    <label for="condition">Condition:</label>
+    <input type="text" id="condition" name="condition" />
+  </div>
+
+  <div class="form-group">
+    <label for="remarks">Remarks:</label>
+    <textarea id="remarks" name="remarks"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="images">Images:</label>
+    <input type="file" id="images" name="images" multiple accept="image/*" />
+  </div>
+
+  <button type="submit" id="addItemBtn">Add Item</button>
+</form>
+
+<!-- Filters -->
+<div id="filterContainer">
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Search equipment..."
+    title="Type to search table"
+  />
+  <select id="categoryFilter" title="Filter by Category">
+    <option value="">All Categories</option>
+  </select>
+</div>
+
+<!-- Control buttons -->
+<div class="controls">
+  <button id="deleteSelected">Delete Selected</button>
+  <button id="printSelected">Print Selected</button>
+  <button id="savePdf">Save as PDF</button>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="selectAll" title="Select All" /></th>
+        <th>Equipment Number</th>
+        <th>Qty</th>
+        <th>Unit</th>
+        <th>Description</th>
+        <th>Category</th>
+        <th>Serial</th>
+        <th>MRE</th>
+        <th>Date</th>
+        <th>Location</th>
+        <th>Condition</th>
+        <th>Images</th>
+        <th>Remarks</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="inventoryTable"></tbody>
+  </table>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  const STORAGE_KEY = 'tmoFieldInventoryItems';
+
+  let items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  let editIndex = null;
+
+  const tableBody = document.getElementById('inventoryTable');
+  const equipmentForm = document.getElementById('equipmentForm');
+  const selectAllCheckbox = document.getElementById('selectAll');
+  const deleteSelectedBtn = document.getElementById('deleteSelected');
+  const printSelectedBtn = document.getElementById('printSelected');
+  const savePdfBtn = document.getElementById('savePdf');
+  const searchInput = document.getElementById('searchInput');
+  const categoryFilter = document.getElementById('categoryFilter');
+
+  // Save items to localStorage
+  function saveToLocal() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }
+
+  // Get unique categories from items for filter dropdown
+  function updateCategoryFilterOptions() {
+    const categories = [...new Set(items.map(item => item.category).filter(Boolean))].sort();
+    categoryFilter.innerHTML = '<option value="">All Categories</option>';
+    categories.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat;
+      option.textContent = cat;
+      categoryFilter.appendChild(option);
+    });
+  }
+
+  // Render Table with filtering by search + category
+  function renderTable() {
+    tableBody.innerHTML = '';
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    const selectedCategory = categoryFilter.value;
+
+    items.forEach((item, i) => {
+      // Filter by category
+      if (selectedCategory && item.category !== selectedCategory) {
+        return;
+      }
+
+      // Filter by search across most text fields
+      const combinedText = [
+        item.equipmentNumber,
+        item.quantity,
+        item.unit,
+        item.description,
+        item.category,
+        item.serialNumber,
+        item.mre,
+        item.dateOfRequisition,
+        item.location,
+        item.condition,
+        item.remarks
+      ].join(' ').toLowerCase();
+
+      if (!combinedText.includes(searchTerm)) {
+        return;
+      }
+
+      const tr = document.createElement('tr');
+
+      // Checkbox
+      const tdSelect = document.createElement('td');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.dataset.index = i;
+      tdSelect.appendChild(checkbox);
+      tr.appendChild(tdSelect);
+
+      // Equipment Number
+      const tdEqNum = document.createElement('td');
+      tdEqNum.textContent = item.equipmentNumber;
+      tr.appendChild(tdEqNum);
+
+      // Quantity
+      const tdQty = document.createElement('td');
+      tdQty.textContent = item.quantity;
+      tr.appendChild(tdQty);
+
+      // Unit
+      const tdUnit = document.createElement('td');
+      tdUnit.textContent = item.unit;
+      tr.appendChild(tdUnit);
+
+      // Description
+      const tdDesc = document.createElement('td');
+      tdDesc.textContent = item.description;
+      tr.appendChild(tdDesc);
+
+      // Category
+      const tdCat = document.createElement('td');
+      tdCat.textContent = item.category;
+      tr.appendChild(tdCat);
+
+      // Serial Number
+      const tdSerial = document.createElement('td');
+      tdSerial.textContent = item.serialNumber;
+      tr.appendChild(tdSerial);
+
+      // MRE
+      const tdMRE = document.createElement('td');
+      tdMRE.textContent = item.mre;
+      tr.appendChild(tdMRE);
+
+      // Date of Requisition
+      const tdDate = document.createElement('td');
+      tdDate.textContent = item.dateOfRequisition;
+      tr.appendChild(tdDate);
+
+      // Location
+      const tdLoc = document.createElement('td');
+      tdLoc.textContent = item.location;
+      tr.appendChild(tdLoc);
+
+      // Condition
+      const tdCond = document.createElement('td');
+      tdCond.textContent = item.condition;
+      tr.appendChild(tdCond);
+
+      // Images
+      const tdImages = document.createElement('td');
+      tdImages.classList.add('image-cell');
+      if (item.images && item.images.length > 0) {
+        item.images.forEach(src => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = 'Equipment Image';
+          tdImages.appendChild(img);
+        });
+      }
+      tr.appendChild(tdImages);
+
+      // Remarks
+      const tdRemarks = document.createElement('td');
+      tdRemarks.textContent = item.remarks;
+      tr.appendChild(tdRemarks);
+
+      // Actions
+      const tdActions = document.createElement('td');
+      tdActions.classList.add('action-buttons');
+
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.classList.add('edit-btn');
+      editBtn.addEventListener('click', () => startEdit(i));
+      tdActions.appendChild(editBtn);
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Delete';
+      delBtn.classList.add('delete-btn');
+      delBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to delete this item?')) {
+          items.splice(i, 1);
+          saveToLocal();
+          updateCategoryFilterOptions();
+          renderTable();
+        }
+      });
+      tdActions.appendChild(delBtn);
+
+      tr.appendChild(tdActions);
+
+      tableBody.appendChild(tr);
+    });
+
+    selectAllCheckbox.checked = false;
+    updateCategoryFilterOptions();
+  }
+
+  // Handle form submit
+  equipmentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const imagesInput = document.getElementById('images');
+    const files = imagesInput.files;
+
+    // Convert images to base64
+    async function filesToBase64(fileList) {
+      const promises = [];
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        promises.push(new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        }));
+      }
+      return Promise.all(promises);
+    }
+
+    let base64Images = [];
+    if (files.length > 0) {
+      base64Images = await filesToBase64(files);
+    }
+
+    const newItem = {
+      equipmentNumber: document.getElementById('equipmentNumber').value.trim(),
+      quantity: parseInt(document.getElementById('quantity').value),
+      unit: document.getElementById('unit').value.trim(),
+      description: document.getElementById('description').value.trim(),
+      category: document.getElementById('category').value.trim(),
+      serialNumber: document.getElementById('serialNumber').value.trim(),
+      mre: document.getElementById('mre').value.trim(),
+      dateOfRequisition: document.getElementById('dateOfRequisition').value,
+      location: document.getElementById('location').value.trim(),
+      condition: document.getElementById('condition').value.trim(),
+      remarks: document.getElementById('remarks').value.trim(),
+      images: base64Images
+    };
+
+    if (editIndex !== null) {
+      items[editIndex] = newItem;
+      editIndex = null;
+      equipmentForm.querySelector('#addItemBtn').textContent = 'Add Item';
+    } else {
+      items.push(newItem);
+    }
+
+    saveToLocal();
+    updateCategoryFilterOptions();
+    renderTable();
+    equipmentForm.reset();
+  });
+
+  // Edit item
+  function startEdit(i) {
+    editIndex = i;
+    const item = items[i];
+
+    document.getElementById('equipmentNumber').value = item.equipmentNumber;
+    document.getElementById('quantity').value = item.quantity;
+    document.getElementById('unit').value = item.unit;
+    document.getElementById('description').value = item.description;
+    document.getElementById('category').value = item.category;
+    document.getElementById('serialNumber').value = item.serialNumber;
+    document.getElementById('mre').value = item.mre;
+    document.getElementById('dateOfRequisition').value = item.dateOfRequisition;
+    document.getElementById('location').value = item.location;
+    document.getElementById('condition').value = item.condition;
+    document.getElementById('remarks').value = item.remarks;
+
+    // Reset images input (can't set programmatically)
+    document.getElementById('images').value = '';
+
+    equipmentForm.querySelector('#addItemBtn').textContent = 'Update Item';
+  }
+
+  // Select all checkbox
+  selectAllCheckbox.addEventListener('change', () => {
+    const checkboxes = tableBody.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => (cb.checked = selectAllCheckbox.checked));
+  });
+
+  // Delete selected items
+  deleteSelectedBtn.addEventListener('click', () => {
+    const checkedBoxes = tableBody.querySelectorAll('input[type="checkbox"]:checked');
+    if (checkedBoxes.length === 0) {
+      alert('No items selected for deletion.');
+      return;
+    }
+
+    if (!confirm(`Delete ${checkedBoxes.length} selected item(s)?`)) return;
+
+    // Sort descending so splice works correctly
+    const indexesToDelete = [...checkedBoxes]
+      .map(cb => parseInt(cb.dataset.index))
+      .sort((a, b) => b - a);
+
+    indexesToDelete.forEach(i => items.splice(i, 1));
+
+    saveToLocal();
+    updateCategoryFilterOptions();
+    renderTable();
+  });
+
+  // Print selected items with description bold and images right
+  printSelectedBtn.addEventListener('click', () => {
+    const checkedBoxes = tableBody.querySelectorAll('input[type="checkbox"]:checked');
+    if (checkedBoxes.length === 0) {
+      alert('No items selected for printing.');
+      return;
+    }
+
+    let html = '';
+    checkedBoxes.forEach(cb => {
+      const item = items[parseInt(cb.dataset.index)];
+      html += `
+        <div style="border:1px solid #ccc; margin-bottom:15px; padding: 10px; display:flex; align-items:flex-start;">
+          <div style="flex:1; padding-right: 15px;">
+            <div><strong>Equipment Number:</strong> ${item.equipmentNumber}</div>
+            <div><strong>Quantity:</strong> ${item.quantity} ${item.unit}</div>
+            <div><strong>Description:</strong> <b>${item.description}</b></div>
+            <div><strong>Category:</strong> ${item.category}</div>
+            <div><strong>Serial Number:</strong> ${item.serialNumber}</div>
+            <div><strong>MRE:</strong> ${item.mre}</div>
+            <div><strong>Date of Requisition:</strong> ${item.dateOfRequisition}</div>
+            <div><strong>Location:</strong> ${item.location}</div>
+            <div><strong>Condition:</strong> ${item.condition}</div>
+            <div><strong>Remarks:</strong> ${item.remarks}</div>
+          </div>
+          <div style="flex-shrink:0; display:flex; flex-wrap: wrap; gap:8px; justify-content:flex-end;">
+            ${item.images.map(src => `<img src="${src}" style="width:2in; height:2in; object-fit:contain; border-radius:6px; border:1px solid #ccc;" />`).join('')}
+          </div>
+        </div>
+      `;
+    });
+
+    const printWin = window.open('', '', 'width=800,height=600');
+    printWin.document.write(`<html><head><title>TMO - Field Inventory</title></head><body>${html}</body></html>`);
+    printWin.document.close();
+    printWin.focus();
+    printWin.print();
+    printWin.close();
+  });
+
+  // Save as PDF
+  savePdfBtn.addEventListener('click', async () => {
+    const checkedBoxes = tableBody.querySelectorAll('input[type="checkbox"]:checked');
+    if (checkedBoxes.length === 0) {
+      alert('No items selected for PDF.');
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 10;
+    const imageMaxWidth = 60;
+    let yPos = margin;
+
+    for (let i = 0; i < checkedBoxes.length; i++) {
+      const item = items[parseInt(checkedBoxes[i].dataset.index)];
+
+      if (yPos + 70 > pdf.internal.pageSize.getHeight()) {
+        pdf.addPage();
+        yPos = margin;
+      }
+
+      const textWidth = pageWidth - margin * 2 - imageMaxWidth - 5;
+
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "normal");
+      pdf.text(`Equipment Number: ${item.equipmentNumber}`, margin, yPos);
+      yPos += 7;
+      pdf.text(`Quantity: ${item.quantity} ${item.unit}`, margin, yPos);
+      yPos += 7;
+
+      pdf.setFont("helvetica", "bold");
+      pdf.text(`Description: ${item.description}`, margin, yPos);
+      pdf.setFont("helvetica", "normal");
+      yPos += 7;
+
+      pdf.text(`Category: ${item.category}`, margin, yPos);
+      yPos += 7;
+      pdf.text(`Serial Number: ${item.serialNumber}`, margin, yPos);
+      yPos += 7;
+      pdf.text(`MRE: ${item.mre}`, margin, yPos);
+      yPos += 7;
+      pdf.text(`Date of Requisition: ${item.dateOfRequisition}`, margin, yPos);
+      yPos += 7;
+      pdf.text(`Location: ${item.location}`, margin, yPos);
+      yPos += 7;
+      pdf.text(`Condition: ${item.condition}`, margin, yPos);
+      yPos += 7;
+      pdf.text(`Remarks: ${item.remarks}`, margin, yPos);
+
+      let imgYPos = yPos - 56;
+      const imgXPos = pageWidth - margin - imageMaxWidth;
+
+      for (const src of item.images) {
+        try {
+          await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = src;
+            img.onload = () => {
+              const aspectRatio = img.height / img.width;
+              const imgHeight = imageMaxWidth * aspectRatio;
+
+              if (imgYPos + imgHeight > pdf.internal.pageSize.getHeight() - margin) {
+                pdf.addPage();
+                imgYPos = margin;
+              }
+
+              pdf.addImage(img, 'JPEG', imgXPos, imgYPos, imageMaxWidth, imgHeight);
+              imgYPos += imgHeight + 5;
+              resolve();
+            };
+            img.onerror = () => resolve();
+          });
+        } catch {
+          // Ignore image errors
+        }
+      }
+
+      yPos = Math.max(yPos + 15, imgYPos);
+      if (yPos > pdf.internal.pageSize.getHeight() - margin && i < checkedBoxes.length - 1) {
+        pdf.addPage();
+        yPos = margin;
+      }
+    }
+
+    pdf.save('TMO_Field_Inventory.pdf');
+  });
+
+  // Search input event
+  searchInput.addEventListener('input', () => {
+    renderTable();
+  });
+
+  // Category filter event
+  categoryFilter.addEventListener('change', () => {
+    renderTable();
+  });
+
+  // Initial load
+  updateCategoryFilterOptions();
+  renderTable();
+</script>
+
+</body>
+</html>
